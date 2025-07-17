@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Redetimer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/static/socket.io.min.js"></script>
+    <style>
+        @font-face {
+            font-family: 'ArialMono';
+            src: url("/static/fonts/Arial MT Medium.ttf") format("truetype");
+            font-weight: normal;
+            font-style: normal;
+        }
+    </style>
+    <style>
+        body {
+            margin: 0;
+            background: black;
+            color: white;
+            font-family: 'ArialMono', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #mainContainer {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        #timer {
+            font-size: 20vw;
+            text-align: center;
+            white-space: nowrap;
+            line-height: 1;
+        }
+        #customMessageDisplay {
+            font-size: 5vw;
+            color: red;
+            margin-top: 2rem;
+            height: 6vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        #fullscreenMessage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: black;
+            color: yellow;
+            z-index: 10;
+        }
+
+        .waiting-text {
+        font-size: 1vw !important;
+        color: darkgray; !important;
+        }
+        #fullscreenText {
+            white-space: pre-line;
+            word-break: break-word;
+            display: inline-block;
+            max-width: 90vw;
+            max-height: 80vh;
+            overflow: hidden;
+            text-align: center;
+            line-height: 1.2;
+            font-size: 6vw;
+        }
+        #fullscreenImage {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: contain;
+            background: black;
+            z-index: 99;
+        }
+        #bottomRightClock {
+            position: absolute;
+            right: 1.5rem;
+            bottom: 1.5rem;
+            font-size: 3vw;
+            color: dimgray;
+            display: none;
+        }
+        .red {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div id="mainContainer">
+        <div id="timer">00:00</div>
+        <div id="customMessageDisplay"></div>
+    </div>
+    <div id="fullscreenMessage"><span id="fullscreenText"></span></div>
+    <img id="fullscreenImage" />
+    <div id="bottomRightClock"></div>
+    <script>
+        const socket = io();
+        const timerElement = document.getElementById('timer');
+
+        socket.on("connect", () => {
+            socket.emit("timer_connected");
+            socket.emit("request_current_time");  // Neue Event-Anfrage an Server
+        });
+
+
+        socket.on('update_time', seconds => {
+            timerElement.textContent = formatTime(seconds);
+            timerElement.classList.toggle('red', seconds < 0);
+
+            // Nur Vollbildmeldung bei Zeitende ausblenden, nicht die Stop-Mitteilung
+            if (seconds === 0 || seconds === -1) {
+                clearFullscreenMessage();
+                // Hinweistext bleibt 10 Sekunden sichtbar
+            }
+        });
+
+        function formatTime(seconds) {
+            const sign = seconds < 0 ? "–" : "";
+            const abs = Math.abs(seconds);
+            const m = String(Math.floor(abs / 60)).padStart(2, '0');
+            const s = String(abs % 60).padStart(2, '0');
+            return `${sign}${m}:${s}`;
+        }
+
+        socket.on("show_stop_message", message => {
+            const display = document.getElementById("customMessageDisplay");
+            display.textContent = message;
+        });
+
+        socket.on("show_fullscreen_message", msg => {
+            const fs = document.getElementById("fullscreenMessage");
+            const text = document.getElementById("fullscreenText");
+            const main = document.getElementById("mainContainer");
+            if (msg && msg.trim()) {
+                text.textContent = msg;
+                
+                // wenn genau der text '☼', dann spezielles Styling
+                if (msg.trim().toLowerCase() === '☼') {
+                    text.classList.add('waiting-text');
+                } else {
+                    text.classList.remove('waiting-text');
+                }
+                fs.style.display = "flex";
+                main.style.display = "none";
+            } else {
+                clearFullscreenMessage();
+            }
+        });
+
+        socket.on("show_fullscreen_image", url => {
+            const img = document.getElementById("fullscreenImage");
+            const fs = document.getElementById("fullscreenMessage");
+            const main = document.getElementById("mainContainer");
+            if (url && url.trim() !== "") {
+                img.src = url;
+                img.style.display = "block";
+                fs.style.display = "none";
+                main.style.display = "none";
+            } else {
+                img.src = "";
+                img.style.display = "none";
+                fs.style.display = "none";
+                main.style.display = "flex";
+            }
+        });
+
+        socket.on("toggle_clock", show => {
+            document.getElementById("bottomRightClock").style.display = show ? "block" : "none";
+        });
+
+        setInterval(() => {
+            const now = new Date();
+            const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById("bottomRightClock").textContent = time;
+        }, 1000);
+
+        function clearFullscreenMessage() {
+            const fs = document.getElementById("fullscreenMessage");
+            const text = document.getElementById("fullscreenText");
+            const main = document.getElementById("mainContainer");
+            text.innerText = "";
+            text.classList.remove('waiting-text');   // hier die Klasse entfernen
+            fs.style.display = "none";
+            main.style.display = "flex";
+        }
+    </script>
+</body>
+</html>

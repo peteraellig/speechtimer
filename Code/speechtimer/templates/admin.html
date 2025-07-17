@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Speechtimer Panel</title>
+
+    <!-- Schriftart lokal einbinden -->
+    <style>
+        @font-face {
+            font-family: 'ArialMono';
+            src: url("/static/fonts/Arial MT Medium.ttf") format("truetype");
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* Grundlayout */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #001f3f; /* Dunkelblauer Hintergrund */
+            color: white;
+            padding: 0;
+            margin-top: -1.5rem;
+            margin-left: 0.5rem;
+        }
+        h1, h2 {
+            margin-top: 1.2rem;
+        }
+
+        /* ---- Basisstil für alle Buttons ---- */
+        button {
+            font-family: inherit;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* ---- Zeitwahl-Buttons im Grid ---- */
+        .time-button {
+            padding: 0.4rem 0.6rem;
+            font-size: 1rem;
+            width: 70px;
+            color: black;
+            background-color: lightgray;
+        }
+        .button-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            max-width: 800px;
+            margin-bottom: 2rem;
+        }
+
+        /* ---- Steuerungsbuttons: Start / Stop / Reset / Senden ---- */
+        .control-button {
+            padding: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+            background-color: white;
+            color: black;
+        }
+
+        .active-time {
+            background-color: green !important;
+            color: white !important;
+        }
+        .running {
+            background-color: green !important;
+            color: white !important;
+        }
+        .stopped {
+            background-color: red !important;
+            color: white !important;
+        }
+
+        #stopSpeechBtn {
+          margin-left: 3rem;
+          font-size: 1rem;
+        }
+
+        #waitBtn {
+          font-size: 1rem;
+        }
+
+        /* ---- Korrektur-Buttons: +/-1 Sek / +/-1 Min ---- */
+        .adjust-button {
+            padding: 0.4rem 0.8rem;
+            font-size: 1rem;
+            color: black;
+            background-color: #ddd;
+        }
+
+        /* ---- Aktuelle Zeit-Anzeige ---- */
+        #currentTimeDisplay {
+            font-size: 4.5rem;
+            margin: 1rem 0;
+            font-family: 'ArialMono', monospace;
+        }
+
+        /* ---- Texteingaben und Mitteilungen ---- */
+        .text-action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-top: 2rem;
+            align-items: flex-start;
+        }
+        .text-action-row > div {
+            display: flex;
+            flex-direction: column;
+        }
+        .text-action-row input {
+            padding: 0.5rem;
+            width: 200px;
+            margin-bottom: 0.5rem;
+        }
+        .text-action-row button {
+            padding: 0.6rem 1.2rem;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        #waitBtn.waiting {
+              background-color: red !important;
+              color: white !important;
+        }              
+
+        /* ---- Buttons zur Bildauswahl ---- */
+        .image-button {
+            padding: 0.1rem 0.1rem;
+            margin-right: 0.5rem;
+            font-size: 1rem;
+            background-color: dimgray;
+            color: white;
+        }
+        .image-button:hover {
+            background-color: #0066cc;
+        }
+    </style>
+
+    <!-- Socket.IO laden -->
+    <script src="static/socket.io.min.js"></script>
+    <!-- Initialer Text bei Ladebeginn -->
+    <script>
+        const defaultStopMessage = "Please finish your speech";
+        window.addEventListener("DOMContentLoaded", () => {
+            const input = document.getElementById("customMessage");
+            if (input && input.value.trim() === "") {
+                input.value = defaultStopMessage;
+            }
+        });
+    </script>
+</head>
+
+<body style="padding-top: 2rem;">
+    <!-- Kopfzeile -->
+    <header style="width:90%; background:#111; font-size: 0.8rem; color:gray; padding:0.25rem 0.5rem; display:flex; justify-content:flex-start; gap:1.5rem; align-items:center; position:fixed; top:0; z-index:100;">
+        <div>Speechtimer Admin Panel v1.1.2 · July 2025 · Peter Aellig ·</div>
+        <div>
+            <span id="clock"></span>
+            <span id="timerStatus" style="margin-left:1rem; color:white; font-weight:bold;">🔴 Timer offline</span>
+        </div>
+    </header>
+
+    <!-- Manuelle Eingabe von Sekunden oder Minuten -->
+    <label for="setmanualtime" 
+           style="display:block; margin-top:2rem; font-size:1rem; font-weight:normal;">
+            set manual time:    <div style="margin-bottom:1rem;">
+    </label>
+    <div style="display:flex; align-items:center; margin-bottom:-0.5rem;">
+        
+        <div>
+            <input type="number" id="secondsInput" placeholder="seconds" style="padding:0.5rem; width:120px;">
+            <button id="set-seconds-btn" onclick="setSeconds()">set sec.</button>
+        </div>
+
+        <div style="margin-left:8rem; position:relative; top:-1rem;">
+            <label style="display:block; margin:0; font-weight:normal;">adjust time:</label>
+            <div style="display:flex; gap:1.5rem; margin-top:0.5rem;">
+                <button class="adjust-button" onclick="adjustTime(-1)">-1 sec</button>
+                <button class="adjust-button" onclick="adjustTime(1)">+1 sec</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div style="display:flex; align-items:center; margin-bottom:0.5rem;">
+        <div>
+            <input type="number" step="0.01" id="minutesInput" placeholder="minutes" style="padding:0.5rem; width:120px;">
+            <button id="set-minutes-btn" onclick="setMinutes()">set min.</button>
+        </div>
+        <div style="margin-left:8rem; margin-top:-1.5rem;">
+            <div style="height:1.5em;"></div>
+            <div style="display:flex; gap:1.5rem;">
+                <button class="adjust-button" onclick="adjustTime(-60)">-1 min</button>
+                <button class="adjust-button" onclick="adjustTime(60)">+1 min</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schnellauswahl für vordefinierte Zeiten -->
+    <h3>select a time:</h3>
+    <div class="button-grid">
+        <button class="time-button" id="time-1" onclick="setTime(1)">1 min</button>
+        <button class="time-button" id="time-2" onclick="setTime(2)">2 min</button>
+        <button class="time-button" id="time-3" onclick="setTime(3)">3 min</button>
+        <button class="time-button" id="time-4" onclick="setTime(4)">4 min</button>
+        <button class="time-button" id="time-5" onclick="setTime(5)">5 min</button>
+        <button class="time-button" id="time-6" onclick="setTime(6)">6 min</button>
+        <button class="time-button" id="time-7" onclick="setTime(7)">7 min</button>
+        <button class="time-button" id="time-8" onclick="setTime(8)">8 min</button>
+        <button class="time-button" id="time-9" onclick="setTime(9)">9 min</button>
+        <button class="time-button" id="time-10" onclick="setTime(10)">10 min</button>
+        <button class="time-button" id="time-11" onclick="setTime(11)">11 min</button>
+        <button class="time-button" id="time-12" onclick="setTime(12)">12 min</button>
+        <button class="time-button" id="time-13" onclick="setTime(13)">13 min</button>
+        <button class="time-button" id="time-14" onclick="setTime(14)">14 min</button>
+        <button class="time-button" id="time-15" onclick="setTime(15)">15 min</button>
+        <button class="time-button" id="time-16" onclick="setTime(16)">16 min</button>
+        <button class="time-button" id="time-17" onclick="setTime(17)">17 min</button>
+        <button class="time-button" id="time-18" onclick="setTime(18)">18 min</button>
+        <button class="time-button" id="time-19" onclick="setTime(19)">19 min</button>
+        <button class="time-button" id="time-20" onclick="setTime(20)">20 min</button>
+        <button class="time-button" id="time-25" onclick="setTime(25)">25 min</button>
+        <button class="time-button" id="time-30" onclick="setTime(30)">30 min</button>
+        <button class="time-button" id="time-35" onclick="setTime(35)">35 min</button>
+        <button class="time-button" id="time-40" onclick="setTime(40)">40 min</button>
+        <button class="time-button" id="time-45" onclick="setTime(45)">45 min</button>
+        <button class="time-button" id="time-50" onclick="setTime(50)">50 min</button>
+        <button class="time-button" id="time-55" onclick="setTime(55)">55 min</button>
+        <button class="time-button" id="time-60" onclick="setTime(60)">60 min</button>
+        <button class="time-button" id="time-90" onclick="setTime(90)">90 min</button>
+        <button class="time-button" id="time-120" onclick="setTime(120)">2 Std</button>
+    </div>
+
+    <!-- Aktueller Timerstand -->
+    <div id="currentTimeDisplay">00:00</div>
+
+    <!-- Sichtbare Nachricht -->
+    <div id="customMessageDisplay" style="margin-top:2rem; font-size:2rem; color:red; text-align:center;"></div>
+
+    <!-- Timer-Steuerung -->
+    <div class="controls">
+        <button class="control-button" id="startBtn" onclick="startTimer()">▶ Start</button>
+        <button class="control-button" id="stopBtn" onclick="stopTimer()">⏸ Stop</button>
+        <button class="control-button" onclick="resetTimer()">🔄 Reset</button>
+        <button id="stopSpeechBtn" class="control-button" onclick="toggleStopSpeech()">stop speech</button>
+        <button id="waitBtn" class="control-button" onclick="toggleWait()">blank screen</button>
+    </div>
+
+    <!-- beide Checkboxen in einer Zeile -->
+    <div style="display:flex; align-items:center; gap:2rem; margin-top:1rem;">
+        <label>
+            <input type="checkbox" id="allowOvertime" onchange="toggleOvertime()">
+            continue counting after expiration
+        </label>
+        <label>
+            <input type="checkbox" id="showClockCheckbox" onchange="toggleClock()">
+            show time of day
+        </label>
+    </div>
+
+
+    <!-- Finish Speech + Vollbildmitteilung -->
+    <div class="text-action-row">
+        <div>
+            <label for="customMessage">Stop-Speech-Notification:</label>
+            <input type="text" id="customMessage">
+           <!-- <div style="display:flex; gap:0.5rem;">
+                <button class="control-button" onclick="sendStopMessage()">Senden</button>
+            </div>-->
+        </div>
+        <div>
+            <label for="fullscreenMsg">free text notification:</label>
+            <input type="text" id="fullscreenMsg" style="width:300px; padding:0.5rem; margin-bottom:.5rem;">
+
+            <div>
+              <button id="toggleFullscreenBtn" class="control-button" onclick="toggleFullscreen()">
+                fullscreen text
+              </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vollbild-Bild anzeigen -->
+    <label for="fullscreenImageInput" 
+           style="display:block; margin-top:2rem; font-size:1rem; font-weight:normal;">
+            show fullscreen image:    <div style="margin-bottom:1rem;">
+    </label>
+        <button class="image-button" onclick="sendImage('/static/images/image1.jpg')">Image 1</button>
+        <button class="image-button" onclick="sendImage('/static/images/image2.jpg')">Image 2</button>
+        <button class="image-button" onclick="sendImage('/static/images/image3.jpg')">Image 3</button>
+        <button class="image-button" onclick="sendImage('/static/images/image4.jpg')">Image 4</button>
+        <button class="image-button" onclick="sendImage('')">hide image</button>
+    </div>
+
+    <div style="margin-top:1.5rem;">
+    <label for="fullscreenImageInput" 
+           style="display:block; margin-top:2rem; font-size:1rem; font-weight:normal;">
+            play a sound:    <div style="margin-bottom:1rem;">
+    </label>
+      <button class="image-button" onclick="playAudio('audio1.mp3')">🔊 Sound 1</button>
+      <button class="image-button" onclick="playAudio('audio2.mp3')">🔊 Sound 2</button>
+      <button class="image-button" onclick="playAudio('audio3.mp3')">🔊 Sound 3</button>
+      <button class="image-button" onclick="playAudio('audio4.mp3')">🔊 Sound 4</button>
+      <!-- 5. Button: Stop all -->
+      <button class="image-button" onclick="stopAllAudio()">⏹ Stop Audio</button>
+    </div>
+
+    <!-- Socket.IO und Timer-Logik -->
+    <script>
+        const socket = io();
+        socket.on("connect", () => { socket.emit("request_timer_status"); });
+        let lastActiveButtonId = null;
+        let waitActive = false;
+
+        function highlightButton(buttonId) {
+            if (lastActiveButtonId) document.getElementById(lastActiveButtonId)?.classList.remove('active-time');
+            if (buttonId) document.getElementById(buttonId)?.classList.add('active-time');
+            lastActiveButtonId = buttonId;
+            updateButtonStates("reset");
+        }
+
+        function setTime(min) {
+            socket.emit("set_time", min);
+            highlightButton("time-" + min);
+        }
+
+        function setSeconds() {
+            const v = parseFloat(document.getElementById("secondsInput").value);
+            if (!isNaN(v)) {
+                socket.emit("set_time", v / 60);
+                highlightButton("set-seconds-btn");
+                updateButtonStates("reset");
+            }
+        }
+
+        function setMinutes() {
+            const v = parseFloat(document.getElementById("minutesInput").value);
+            if (!isNaN(v)) {
+                socket.emit("set_time", v);
+                highlightButton("set-minutes-btn");
+                updateButtonStates("reset");
+            }
+        }
+
+        function startTimer() {
+            socket.emit("start_timer");
+            updateButtonStates("running");
+        }
+
+        function stopTimer() {
+            socket.emit("stop_timer");
+            updateButtonStates("stopped");
+        }
+
+        function resetTimer() {
+            // Server‐Reset
+            socket.emit("reset_timer");
+            // Zeit‐Buttons zurücksetzen
+            highlightButton(null);
+            updateButtonStates("reset");
+            // Toggle‑Zustände zurücksetzen
+            waitActive = false;
+            stopSpeechActive = false;
+            // Toggle‑Button‑Styles entfernen
+            document.getElementById('waitBtn').classList.remove('waiting');
+            document.getElementById('stopSpeechBtn').classList.remove('stopped');
+            fullscreenActive = false;
+            document.getElementById('toggleFullscreenBtn').classList.remove('stopped');
+            socket.emit('show_fullscreen_message', '');
+        }
+
+
+        function toggleOvertime() {
+            const allow = document.getElementById("allowOvertime").checked;
+            socket.emit("set_overtime", allow);
+        }
+
+        function sendStopMessage() {
+            const msg = document.getElementById("customMessage").value.trim();
+            socket.emit("show_stop_message", msg);
+        }
+
+        function toggleClock() {
+            const show = document.getElementById("showClockCheckbox").checked;
+            socket.emit("toggle_clock", show);
+        }
+
+        function sendFullscreenMessage() {
+            const msg = document.getElementById("fullscreenMsg").value.trim();
+            socket.emit("show_fullscreen_message", msg);
+        }
+
+        function updateButtonStates(state) {
+            const startBtn = document.getElementById("startBtn");
+            const stopBtn  = document.getElementById("stopBtn");
+
+            startBtn.classList.toggle("running", state === "running");
+            stopBtn.classList.toggle("stopped", state === "stopped");
+        }
+
+
+        let fullscreenActive = false;
+        function toggleFullscreen() {
+          const btn = document.getElementById('toggleFullscreenBtn');
+          const msg = document.getElementById('fullscreenMsg').value.trim();
+          fullscreenActive = !fullscreenActive;
+          if (fullscreenActive) {
+            btn.classList.add('stopped');               // Button rot
+            socket.emit('show_fullscreen_message', msg);// Zeige Text
+          } else {
+            btn.classList.remove('stopped');            // Button zurück
+            socket.emit('show_fullscreen_message', '');// Verstecke Text
+          }
+        }
+
+
+        function toggleWait() {
+            const btn = document.getElementById('waitBtn');
+            waitActive = !waitActive;
+
+            if (waitActive) {
+              btn.classList.add('waiting');
+              socket.emit('show_fullscreen_message', '☼');
+            } else {
+              btn.classList.remove('waiting');
+              socket.emit('show_fullscreen_message', '');
+            }
+        }
+
+        let stopSpeechActive = false;
+        function toggleStopSpeech() {
+                    const btn = document.getElementById('stopSpeechBtn');
+                    const msg = document.getElementById('customMessage').value.trim();
+                    stopSpeechActive = !stopSpeechActive;
+                    if (stopSpeechActive) {
+                        btn.classList.add('stopped');              // Button rot machen
+                        socket.emit('show_stop_message', msg);     // Meldung anzeigen
+                    } else {
+                        btn.classList.remove('stopped');           // Button zurücksetzen
+                        socket.emit('show_stop_message', '');      // Meldung ausblenden
+                    }
+        }
+
+
+
+        function sendImage(u) { socket.emit("show_fullscreen_image",u); }
+        socket.on("update_time", s => { const sign=s<0?"–":""; const a=Math.abs(s); document.getElementById("currentTimeDisplay").textContent=`${sign}${String(Math.floor(a/60)).padStart(2,'0')}:${String(a%60).padStart(2,'0')}`; });
+        socket.on("timer_status",d=>{ const el=document.getElementById("timerStatus"); el.textContent=d.connected?"🟢 Timer online":"🔴 Timer offline"; el.style.color=d.connected?"lightgreen":"red"; });
+        function adjustTime(delta){ socket.emit("adjust_time",delta); }
+        function replaceImages(){ fetch("/replace-images",{method:"POST",headers:{"Authorization":"Basic "+btoa("admin:password123")}}).then(r=>r.json()).then(d=>{ const st=document.getElementById("replaceStatus"); st.textContent=(d.status==="success"?"✅ "+d.message:"❌ "+d.message); st.style.color=d.status==="success"?"lightgreen":"red"; }).catch(e=>{ const st=document.getElementById("replaceStatus"); st.textContent="⚠️ Fehler: "+e; st.style.color="orange"; }); }
+
+
+            // you can preload them if you like:
+      const audios = {
+        audio1: new Audio('/static/audio/audio1.mp3'),
+        audio2: new Audio('/static/audio/audio2.mp3'),
+        audio3: new Audio('/static/audio/audio3.mp3'),
+        audio4: new Audio('/static/audio/audio4.mp3'),
+      };
+
+         function playAudio(fileName) {
+        // pick the right Audio object
+        const key = fileName.replace('.mp3','');
+        const player = audios[key];
+        if (player) {
+          player.currentTime = 0;  // restart if already playing
+          player.play().catch(e => console.warn('Playback failed:', e));
+        }
+      }
+
+      // stoppt und setzt alle vor­gerade­ten Audios zurück
+        function stopAllAudio() {
+          Object.values(audios).forEach(player => {
+            player.pause();
+            player.currentTime = 0;
+          });
+        }
+
+
+    </script>
+
+    <!-- Live-Uhr -->
+    <script>
+        function updateClock() { const now=new Date(); document.getElementById('clock').textContent=`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`; }
+        setInterval(updateClock,1000); updateClock();
+    </script>
+</body>
+</html>
