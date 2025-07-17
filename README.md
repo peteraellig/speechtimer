@@ -5,6 +5,10 @@ I would like to share my latest project: a web based speech timer that makes man
 **Introducing SpeechTimer **
 I would like to share my latest project: a web based speech timer that makes managing presentations and talks a breeze.
 
+You install Python and the necessary extensions on your computer (PC/Mac/Raspi), copy the files into the speechtimer directory.   
+then you start python app.py and can then access speechtimer and admin in the same network.  
+The details are described in the manuals or visible in the code.  
+
 **Tech Stack**  
 Flask + Flask SocketIO backend in Python  
 – Serves both the public timer page and the secured admin panel  
