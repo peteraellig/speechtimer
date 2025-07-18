@@ -2,7 +2,8 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Speechtimer Panel</title>
+    <title id="tabTitle">Admin</title>
+
 
     <!-- Schriftart lokal einbinden -->
     <style>
@@ -144,6 +145,10 @@
     <script>
         const defaultStopMessage = "Please finish your speech";
         window.addEventListener("DOMContentLoaded", () => {
+
+            // Tab-Titel dynamisch setzen
+            document.title = "Admin " + "{{ instance_name }}";
+
             const input = document.getElementById("customMessage");
             if (input && input.value.trim() === "") {
                 input.value = defaultStopMessage;
@@ -154,12 +159,13 @@
 
 <body style="padding-top: 2rem;">
     <!-- Kopfzeile -->
-    <header style="width:90%; background:#111; font-size: 0.8rem; color:gray; padding:0.25rem 0.5rem; display:flex; justify-content:flex-start; gap:1.5rem; align-items:center; position:fixed; top:0; z-index:100;">
-        <div>Speechtimer Admin Panel v1.1.2 · July 2025 · Peter Aellig ·</div>
-        <div>
-            <span id="clock"></span>
-            <span id="timerStatus" style="margin-left:1rem; color:white; font-weight:bold;">🔴 Timer offline</span>
-        </div>
+    <header style="display:flex; justify-content:space-between; align-items:center; padding:10px; background-color:#333; color:white; font-weight:bold; font-size:18px;">
+      <div>
+        Timer {{ instance_name }}  · 
+        <span id="timerStatus">🔴 Timer offline</span> · 
+        Speechtimer Admin Panel v1.1.3 · Peter Aellig
+      </div>
+      <div id="clock"></div>
     </header>
 
     <!-- Manuelle Eingabe von Sekunden oder Minuten -->
@@ -309,8 +315,36 @@
 
     <!-- Socket.IO und Timer-Logik -->
     <script>
-        const socket = io();
-        socket.on("connect", () => { socket.emit("request_timer_status"); });
+          const socket = io({
+            reconnection: true,        // automatisch erneut verbinden
+            reconnectionAttempts: 10,  // bis zu 10x versuchen
+            reconnectionDelay: 1000,   // 1 Sekunde zwischen Versuchen
+            timeout: 10000              // Verbindungs-Timeout in ms
+          });
+
+          socket.on("connect", () => {
+            console.log("✅ Verbunden mit Server.");
+          socket.emit("request_timer_status");
+          });
+
+
+          socket.on("disconnect", () => {
+            console.warn("⚠️ Verbindung verloren. Versuche Wiederverbindung …");
+          });
+
+          socket.io.on("reconnect_attempt", attempt => {
+            console.log(`🔄 Reconnect-Versuch #${attempt}`);
+          });
+
+          socket.io.on("reconnect_failed", () => {
+            console.error("❌ Reconnect gescheitert.");
+          });
+
+          socket.io.on("reconnect", () => {
+            console.log("✅ Wieder verbunden!");
+          });
+
+
         let lastActiveButtonId = null;
         let waitActive = false;
 

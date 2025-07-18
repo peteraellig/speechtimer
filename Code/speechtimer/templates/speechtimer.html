@@ -118,9 +118,27 @@
         const timerElement = document.getElementById('timer');
 
         socket.on("connect", () => {
+            console.log("✅ Verbunden mit Server.");
             socket.emit("timer_connected");
             socket.emit("request_current_time");  // Neue Event-Anfrage an Server
+            socket.emit("request_instance_name");
         });
+
+        socket.on("disconnect", () => {
+            console.warn("⚠️ Verbindung verloren. Versuche Wiederverbindung …");
+          });
+
+          socket.io.on("reconnect_attempt", attempt => {
+            console.log(`🔄 Reconnect-Versuch #${attempt}`);
+          });
+
+          socket.io.on("reconnect_failed", () => {
+            console.error("❌ Reconnect gescheitert.");
+          });
+
+          socket.io.on("reconnect", () => {
+            console.log("✅ Wieder verbunden!");
+          });
 
 
         socket.on('update_time', seconds => {
@@ -167,6 +185,10 @@
             }
         });
 
+        socket.on("instance_name", name => {
+            document.title = "Speechtimer " + name;
+        });
+
         socket.on("show_fullscreen_image", url => {
             const img = document.getElementById("fullscreenImage");
             const fs = document.getElementById("fullscreenMessage");
@@ -203,6 +225,13 @@
             fs.style.display = "none";
             main.style.display = "flex";
         }
+
+        socket.emit("request_instance_name");  // beim Verbindungsaufbau
+
+        socket.on("instance_name", name => {
+            document.title = "Speechtimer " + name;
+        });
+
     </script>
 </body>
 </html>
