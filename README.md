@@ -1,13 +1,14 @@
 # speechtimer  
 I would like to share my latest project: a web based speech timer that makes managing presentations and talks a breeze.
-![Alt-Text](speechtimer.JPG)
+![Alt-Text](speechtimer1.JPG)
 
 **Introducing SpeechTimer **
 Speechtimer is a simple and easy-to-use programme for controlling a presenter's speaking time.  
 The basic programme is a python script **app.py** and two HTML files, **admin.html** and **speechtimer.html**  
 All these modules must run in the same network. No internet is required.  
 Admin and speechtimer run on any device that has a modern browser. (PC/Mac/Lnx/IOS/Android/Kindle etc.)  
-You can also start app.py several times by turning app.py into app.py2 and assigning a new port number. I am still adapting so that the admin console knows which timer it is connected to.  
+You can also start app.py several times by turning app.py into app.py2 and assigning a new port number.  
+You can enter the room name in the app instances (app.py / app2.py etc.), this will then be displayed in the TAB tabs of the browser and in the Admin Console.  
 Only one timer is currently available on the Raspi image.  
 
 You install Python and the necessary extensions on your computer (PC/Mac/**Raspi***), copy the files into the speechtimer directory.   
