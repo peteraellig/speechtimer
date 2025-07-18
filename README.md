@@ -1,4 +1,4 @@
-# speechtimer  
+# speechtimer  1.1.3
 I would like to share my latest project: a web based speech timer that makes managing presentations and talks a breeze.
 ![Alt-Text](speechtimer1.JPG)
 
@@ -21,9 +21,15 @@ The details are described in the manuals or visible in the code.
 Flask + Flask SocketIO backend in Python  
 – Serves both the public timer page and the secured admin panel  
 – Handles real time events (start, stop, reset, adjust time, and custom messages) via WebSockets 
+– can run multiple times, just adapt the roomname und the port adress in app.py and copy it to app2.py/app3.py
 
 **HTML/CSS/JS Frontend**  
-– Admin Panel (admin.html): select preset times, set custom seconds/minutes, start/stop/reset, adjust on the fly, toggle overtime, show/hide clock, send fullscreen text or images, and play/stop sound cues  
+start your server with python app.py  
+Start your output and controls with 192.168.1.210:55055 this shows the speechtimer and 192.168.1.210:55055/admin shows the control (IP and Port Numbers are examples only)  
+start your second timer with python app2.py  
+Start your SECOND output and controls with 192.168.1.210:55056 this shows the speechtimer and 192.168.1.210:55056/admin shows the control (IP and Port Numbers are examples only)  
+
+– Admin Panel (admin.html): select preset times, set custom seconds/minutes, start/stop/reset, adjust on the fly, toggle overtime, show/hide clock, send fullscreen text or images, and play/stop sound cues
 – Timer Display (speechtimer.html): full screen countdown with red warning when time’s up, custom “stop speech” messages, blank screen mode, image or text overlays, and optional clock in the corner  
 
 **Key Features**  
@@ -35,5 +41,5 @@ Flask + Flask SocketIO backend in Python
 -Secure Admin Access: basic HTTP auth protects the control panel  
 -Speechtimer.html  can run on any (multiple) device in the same network  
 
-Whether you’re running it on a Raspberry Pi or a PC, the browser driven audio/video features work identically—no extra server side audio libraries needed. Perfect for conferences, classrooms, or any live event speaking setup. 
+Whether you’re running it on a Raspberry Pi or a PC, the browser features work identically.
 
