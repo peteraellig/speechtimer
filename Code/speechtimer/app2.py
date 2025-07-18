@@ -17,7 +17,7 @@ logging.getLogger("engineio").setLevel(logging.WARNING)
 app = Flask(__name__)
 
 
-APP_INSTANCE_NAME = "Briefing Room"  # hier wird der name festgelegt, welcher in der Admin Konsole sichtbar ist
+APP_INSTANCE_NAME = "Pressconference"  # hier wird der name festgelegt, welcher in der Admin Konsole sichtbar ist
 
 
 socketio = SocketIO(app)
@@ -179,4 +179,4 @@ def replace_images():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=55055)
+    socketio.run(app, host="0.0.0.0", port=55056)
