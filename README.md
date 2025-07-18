@@ -8,8 +8,8 @@ The basic programme is a python script **app.py** and two HTML files, **admin.ht
 All these modules must run in the same network. No internet is required.  
 Admin and speechtimer run on any device that has a modern browser. (PC/Mac/Lnx/IOS/Android/Kindle etc.)  
 You can also start app.py several times by turning app.py into app.py2 and assigning a new port number.  
-You can enter the room name in the app instances (app.py / app2.py etc.), this will then be displayed in the TAB tabs of the browser and in the Admin Console.  
-**Raspi4 Image** 4 instances are installed on the Raspi and start automatically when booting  
+You can enter the room name in the app instances (app.py / app2.py / app3.py / app4.py etc.), this will then be displayed in the TAB tabs of the browser and in the Admin Console.  
+**Raspi4 Image** 4 instances are installed on the Raspi-Image and start automatically when booting  
 
 You install Python and the necessary extensions on your computer (PC/Mac/**Raspi***), copy the files into the speechtimer directory.   
 then you start python app.py and can then access speechtimer and admin in the same network.  
