@@ -8,7 +8,11 @@ import threading
 import time
 import os
 import shutil
+import logging 
 from flask import jsonify
+
+logging.getLogger("eventlet.wsgi").setLevel(logging.ERROR)  
+logging.getLogger("engineio").setLevel(logging.WARNING) 
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -169,4 +173,4 @@ def replace_images():
 
 
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=55055, debug=True)
+    socketio.run(app, host="0.0.0.0", port=55055)
