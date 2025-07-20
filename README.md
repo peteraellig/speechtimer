@@ -3,7 +3,7 @@ I would like to share my latest project: a web based speech timer that makes man
 Admin and speechtimer run on any device that has a modern browser. (PC/Mac/Lnx/IOS/Android/Kindle etc.)  
 
 I also have two ready to use Raspi4 images. The smaller one fits on a 4GB card and has no desktop. Operation via PuTTY and WinSCP.  
-The larger one starts with LDXE Desktop, so network/wifi can also be easily set up using a monitor/mouse/keyboard.  
+The larger one fits on a 8GB card) starts with LDXE Desktop, so network/wifi can also be easily set up using a monitor/mouse/keyboard.  
 This image starts in kiosk mode and also shows the first speechtimer.html output (55055) on the HDMI output of the Raspi.  
 
 ![Alt-Text](speechtimer1.JPG)
