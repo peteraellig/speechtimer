@@ -20,7 +20,8 @@ You can enter the room name in the app instances (app.py / app2.py / app3.py / a
 You install Python and the necessary extensions on your computer (PC/Mac/**Raspi***), copy the files into the speechtimer directory.   
 then you start python app.py and can then access speechtimer and admin in the same network.  
 The details are described in the manuals or visible in the code.  
-The Raspi Images will autostart 4 Instances of the Timer (port55055 -55058), the Desktop Image starts also Timer1 (55055) in Kiosk Mode and outputs it on the Raspi4 HDMI Out. 
+The Raspi Images will autostart 4 Instances of the Timer (port55055 -55058), the Desktop Image starts also Timer1 (55055) in Kiosk Mode and outputs it on the Raspi4 HDMI Out.  
+
 **For the Raspi4 you can download a smaller (fits on a 4GB card) ready to use NON DESKTOP image:**  
 **For the Raspi4 you can download a larger (fits on a 8GB card) ready to use DESKTOP image:**  (Quit Kiosk Mode DIsplay with ALT-F4)  
 *[Raspi4 Image links](https://drive.google.com/drive/folders/1aS9zuvYhaSjZAqpjX2A-KHDxk3yzTw-w?usp=sharing)  
