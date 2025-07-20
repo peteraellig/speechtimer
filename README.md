@@ -22,11 +22,8 @@ then you start python app.py and can then access speechtimer and admin in the sa
 The details are described in the manuals or visible in the code.  
 The Raspi Images will autostart 4 Instances of the Timer (port55055 -55058), the Desktop Image starts also Timer1 (55055) in Kiosk Mode and outputs it on the Raspi4 HDMI Out. 
 **For the Raspi4 you can download a smaller (fits on a 4GB card) ready to use NON DESKTOP image:**  
-*[Raspi4 Image link](https://drive.google.com/drive/folders/1aS9zuvYhaSjZAqpjX2A-KHDxk3yzTw-w?usp=sharing)  
-
-**For the Raspi4 you can download a larger (fits on a 8GB card) ready to use DESKTOP image:**
-*[Raspi4 Desktop Image link](https://drive.google.com/drive/folders/1aS9zuvYhaSjZAqpjX2A-KHDxk3yzTw-w?usp=sharing)  
-(Quit Kiosk Mode DIsplay with ALT-F4)  
+**For the Raspi4 you can download a larger (fits on a 8GB card) ready to use DESKTOP image:**  (Quit Kiosk Mode DIsplay with ALT-F4)  
+*[Raspi4 Image links](https://drive.google.com/drive/folders/1aS9zuvYhaSjZAqpjX2A-KHDxk3yzTw-w?usp=sharing)  
 
 **Tech Stack**  
 Flask + Flask SocketIO backend in Python  
