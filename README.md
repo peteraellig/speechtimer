@@ -1,5 +1,8 @@
 # speechtimer  1.1.3
-I would like to share my latest project: a web based speech timer that makes managing presentations and talks a breeze.
+I would like to share my latest project: a web based speech timer that makes managing talks a breeze.  
+I also have two ready to use Raspi4 images. The smaller one fits on a 4GB card and has no desktop. Operation via PuTTY and WinSCP.  
+The larger one starts with LDXE Desktop, so network/wifi can also be easily set up using a monitor/mouse/keyboard.  
+This image starts in kiosk mode and also shows the first speechtimer.html output (55055) on the HDMI output of the Raspi.
 ![Alt-Text](speechtimer1.JPG)
 
 **Introducing SpeechTimer **
@@ -14,7 +17,10 @@ You can enter the room name in the app instances (app.py / app2.py / app3.py / a
 You install Python and the necessary extensions on your computer (PC/Mac/**Raspi***), copy the files into the speechtimer directory.   
 then you start python app.py and can then access speechtimer and admin in the same network.  
 The details are described in the manuals or visible in the code. 
-**For the Raspi4 you can download a ready to use image:**
+**For the Raspi4 you can download a smaller ready to use NON DESKTOP image:**
+*[Raspi4 Image link](https://drive.google.com/drive/folders/1aS9zuvYhaSjZAqpjX2A-KHDxk3yzTw-w?usp=sharing)  
+
+**For the Raspi4 you can download a larger ready to use DESKTOP image:**
 *[Raspi4 Image link](https://drive.google.com/drive/folders/1aS9zuvYhaSjZAqpjX2A-KHDxk3yzTw-w?usp=sharing)
 
 **Tech Stack**  
