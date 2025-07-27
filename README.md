@@ -1,9 +1,8 @@
-# speechtimer  1.1.3
+# speechtimer  1.1.4
 I would like to share my latest project: a web based speech timer that makes managing talks a breeze.  
 Admin and speechtimer run on any device that has a modern browser. (PC/Mac/Lnx/IOS/Android/Kindle etc.)  
 
-I also have two ready to use Raspi4 images. The smaller one fits on a 4GB card and has no desktop. Operation via PuTTY and WinSCP.  
-The larger one fits on a 16GB card) starts with LDXE Desktop, so network/wifi can also be easily set up using a monitor/mouse/keyboard.  
+I also have one ready to use Raspi4 image. It fits on a 16GB card) starts with LDXE Desktop, so network/wifi can also be easily set up using a monitor/mouse/keyboard.  
 This image starts in kiosk mode and also shows the first speechtimer.html output (55055) on the HDMI output of the Raspi.  
 
 ![Alt-Text](speechtimer1.JPG)
@@ -15,7 +14,9 @@ All these modules must run in the same network. No internet is required.
 Admin and speechtimer run on any device that has a modern browser. (PC/Mac/Lnx/IOS/Android/Kindle etc.)  
 You can also start app.py several times by turning app.py into app.py2 and assigning a new port number.  
 You can enter the room name in the app instances (app.py / app2.py / app3.py / app4.py etc.), this will then be displayed in the TAB tabs of the browser and in the Admin Console.  
-**Raspi4 Image** 4 instances are installed on the Raspi-Image and start automatically when booting  
+**Raspi4 Image** 4 instances are installed on the Raspi-Image and start automatically when booting.  
+Version 1.1.4 includes a default time setting that is restored after a reset. This applies independently to each of the four timers.
+Improvements include the ability to activate the admin or speech timer on any device at any time, without affecting any running timer.
 
 You install Python and the necessary extensions on your computer (PC/Mac/**Raspi***), copy the files into the speechtimer directory.   
 then you start python app.py and can then access speechtimer and admin in the same network.  
