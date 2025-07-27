@@ -143,8 +143,10 @@
     <script src="static/socket.io.min.js"></script>
     <!-- Initialer Text bei Ladebeginn -->
     <script>
+       
         const defaultStopMessage = "Please finish your speech";
         window.addEventListener("DOMContentLoaded", () => {
+
 
             // Tab-Titel dynamisch setzen
             document.title = "Admin " + "{{ instance_name }}";
@@ -153,19 +155,26 @@
             if (input && input.value.trim() === "") {
                 input.value = defaultStopMessage;
             }
+
+            // Autostart: Timer reset azf default Minuten setzen
+            setTime(defaultMinutes);
+            highlightButton("time-" + defaultMinutes);
+            // Kein automatischer Reset mehr!
         });
     </script>
 </head>
 
 <body style="padding-top: 2rem;">
-    <!-- Kopfzeile -->
+    <!-- Kopfzeile mit Versionsnummer -->
     <header style="display:flex; justify-content:space-between; align-items:center; padding:10px; background-color:#333; color:white; font-weight:bold; font-size:18px;">
       <div>
-        Timer {{ instance_name }}  · 
-        <span id="timerStatus">🔴 Timer offline</span> · 
-        Speechtimer Admin Panel v1.1.3 · Peter Aellig
+        {{ instance_name }}  
+        <span id="timerStatus">  🔴 Timer offline</span>
       </div>
-      <div id="clock"></div>
+      <div style="display:flex; align-items:center; gap:1rem;">
+        <span style="font-size:14px; opacity:0.8;">SpeechTimer 1.1.4 · Peter Aellig</span>
+        <div id="clock"></div>
+      </div>
     </header>
 
     <!-- Manuelle Eingabe von Sekunden oder Minuten -->
@@ -180,6 +189,7 @@
             <button id="set-seconds-btn" onclick="setSeconds()">set sec.</button>
         </div>
 
+    <!-- Manuelle Korrektur von Sekunden oder Minuten -->
         <div style="margin-left:8rem; position:relative; top:-1rem;">
             <label style="display:block; margin:0; font-weight:normal;">adjust time:</label>
             <div style="display:flex; gap:1.5rem; margin-top:0.5rem;">
@@ -203,6 +213,13 @@
             </div>
         </div>
     </div>
+    <!-- Default Wert für Timer Reset, kann zur Laufzeit geändert werden-->
+            <div>
+                <label for="defaultResetTime">Default Reset Time (min):</label>
+                <input type="number" id="defaultResetTime" min="1" step="1" style="width:100px;" />
+                <button onclick="saveDefaultResetTime()">💾 Save</button>
+            </div>
+    
 
     <!-- Schnellauswahl für vordefinierte Zeiten -->
     <h3>select a time:</h3>
@@ -271,19 +288,19 @@
     <div class="text-action-row">
         <div>
             <label for="customMessage">Stop-Speech-Notification:</label>
-            <input type="text" id="customMessage">
+            <input type="text" id="customMessage" style="width:200px; padding:0.2rem; margin-bottom:.5rem;">
            <!-- <div style="display:flex; gap:0.5rem;">
                 <button class="control-button" onclick="sendStopMessage()">Senden</button>
             </div>-->
         </div>
+
         <div>
             <label for="fullscreenMsg">free text notification:</label>
-            <input type="text" id="fullscreenMsg" style="width:300px; padding:0.5rem; margin-bottom:.5rem;">
-
+            <input type="text" id="fullscreenMsg" style="width:300px; padding:0.2rem; margin-bottom:.5rem;">
             <div>
-              <button id="toggleFullscreenBtn" class="control-button" onclick="toggleFullscreen()">
-                fullscreen text
-              </button>
+                <button id="toggleFullscreenBtn" onclick="toggleFullscreen()" style="padding: 0.2rem 0.5rem; font-size: 0.9rem;">
+                    fullscreen text
+                </button>
             </div>
         </div>
     </div>
@@ -322,10 +339,27 @@
             timeout: 10000              // Verbindungs-Timeout in ms
           });
 
-          socket.on("connect", () => {
+        socket.on("connect", () => {
             console.log("✅ Verbunden mit Server.");
-          socket.emit("request_timer_status");
-          });
+
+            // Timer-Status und Instanzname abrufen
+            socket.emit("request_timer_status");
+
+            // Default-Zeit vom Server holen
+            socket.emit("get_default_time");
+        });
+
+        // Reaktion auf default_time
+        socket.on("default_time", value => {
+            defaultMinutes = value;
+            const input = document.getElementById("defaultResetTime");
+            if (input) {
+                input.value = value;
+                setTime(defaultMinutes);
+                highlightButton("time-" + defaultMinutes);
+                setTimeout(() => socket.emit("reset_timer"), 100);
+            }
+        });
 
 
           socket.on("disconnect", () => {
@@ -389,17 +423,19 @@
         }
 
         function resetTimer() {
-            // Server‐Reset
             socket.emit("reset_timer");
-            // Zeit‐Buttons zurücksetzen
-            highlightButton(null);
+            const currentDefault = parseInt(document.getElementById("defaultResetTime").value);
+            if (!isNaN(currentDefault)) {
+                setTime(currentDefault);
+                highlightButton("time-" + currentDefault);
+            }
             updateButtonStates("reset");
-            // Toggle‑Zustände zurücksetzen
+            
             waitActive = false;
             stopSpeechActive = false;
-            // Toggle‑Button‑Styles entfernen
             document.getElementById('waitBtn').classList.remove('waiting');
             document.getElementById('stopSpeechBtn').classList.remove('stopped');
+            
             fullscreenActive = false;
             document.getElementById('toggleFullscreenBtn').classList.remove('stopped');
             socket.emit('show_fullscreen_message', '');
@@ -484,9 +520,18 @@
         socket.on("timer_status",d=>{ const el=document.getElementById("timerStatus"); el.textContent=d.connected?"🟢 Timer online":"🔴 Timer offline"; el.style.color=d.connected?"lightgreen":"red"; });
         function adjustTime(delta){ socket.emit("adjust_time",delta); }
         function replaceImages(){ fetch("/replace-images",{method:"POST",headers:{"Authorization":"Basic "+btoa("admin:password123")}}).then(r=>r.json()).then(d=>{ const st=document.getElementById("replaceStatus"); st.textContent=(d.status==="success"?"✅ "+d.message:"❌ "+d.message); st.style.color=d.status==="success"?"lightgreen":"red"; }).catch(e=>{ const st=document.getElementById("replaceStatus"); st.textContent="⚠️ Fehler: "+e; st.style.color="orange"; }); }
+        function saveDefaultResetTime() {
+            const value = parseInt(document.getElementById("defaultResetTime").value);
+            if (!isNaN(value) && value > 0) {
+                socket.emit("set_default_time", value);
+                alert("Default time saved: " + value + " min");
+            } else {
+                alert("Invalid value");
+            }
+        }
 
 
-            // you can preload them if you like:
+            // im voraus laden
       const audios = {
         audio1: new Audio('/static/audio/audio1.mp3'),
         audio2: new Audio('/static/audio/audio2.mp3'),
@@ -504,7 +549,7 @@
         }
       }
 
-      // stoppt und setzt alle vor­gerade­ten Audios zurück
+      // stoppt und setzt alle Audios zurück
         function stopAllAudio() {
           Object.values(audios).forEach(player => {
             player.pause();
@@ -512,11 +557,7 @@
           });
         }
 
-
-    </script>
-
-    <!-- Live-Uhr -->
-    <script>
+     // Live-Uhr
         function updateClock() { const now=new Date(); document.getElementById('clock').textContent=`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`; }
         setInterval(updateClock,1000); updateClock();
     </script>
