@@ -30,14 +30,8 @@ logging.getLogger("engineio").setLevel(logging.WARNING)
 
 app = Flask(__name__)
 
-#--------------------------------------------------------------------------------------------------------------
-# CHANGE ROOM NAME HERE
-# if you add a new instance e.g. app5.py, do not forget to change the PORT NUMBER AT THE END OF THIS FILE.
-# The port number must be free and not be used by any of the app.py instances or any other application!
 
-APP_INSTANCE_NAME = "Briefing Room"  # hier wird der name festgelegt, welcher in der Admin Konsole sichtbar ist
-#--------------------------------------------------------------------------------------------------------------
-
+APP_INSTANCE_NAME = "Round Table"  # hier wird der name festgelegt, welcher in der Admin Konsole sichtbar ist
 
 def get_default_time_filename():
     return f"default_time_{APP_INSTANCE_NAME.replace(' ', '_')}.txt"
@@ -212,4 +206,4 @@ def handle_set_default_time(minutes):
 
 
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=55055)
+    socketio.run(app, host="0.0.0.0", port=55057)

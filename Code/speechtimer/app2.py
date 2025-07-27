@@ -9,6 +9,20 @@ import time
 import os
 import shutil
 import logging 
+
+#speicher hilfsfunktionen
+
+def save_default_time(minutes):
+    with open(get_default_time_filename(), "w") as f:
+        f.write(str(minutes))
+
+def load_default_time():
+    try:
+        with open(get_default_time_filename(), "r") as f:
+            return int(f.read().strip())
+    except:
+        return 12  # Fallback-Wert in Minuten
+
 from flask import jsonify
 
 logging.getLogger("eventlet.wsgi").setLevel(logging.ERROR)  
@@ -16,9 +30,17 @@ logging.getLogger("engineio").setLevel(logging.WARNING)
 
 app = Flask(__name__)
 
+#--------------------------------------------------------------------------------------------------------------
+# CHANGE ROOM NAME HERE
+# if you add a new instance e.g. app5.py, do not forget to change the PORT NUMBER AT THE END OF THIS FILE.
+# The port number must be free and not be used by any of the app.py instances or any other application!
 
-APP_INSTANCE_NAME = "Pressconference"  # hier wird der name festgelegt, welcher in der Admin Konsole sichtbar ist
+APP_INSTANCE_NAME = "Delegation Viewing"  # hier wird der name festgelegt, welcher in der Admin Konsole sichtbar ist
+#--------------------------------------------------------------------------------------------------------------
 
+
+def get_default_time_filename():
+    return f"default_time_{APP_INSTANCE_NAME.replace(' ', '_')}.txt"
 
 socketio = SocketIO(app)
 auth = HTTPBasicAuth()
@@ -36,7 +58,7 @@ def get_pw(username):
 current_time = 0
 timer_running = False
 allow_overtime = False
-last_set_time = 0
+last_set_time = load_default_time() * 60  # Minuten in Sekunden
 timer_thread = None
 
 # Verbindungsverwaltung
@@ -92,22 +114,22 @@ def send_current_time():
 @socketio.on("reset_timer")
 def reset_timer():
     global current_time, last_set_time, timer_running
-    timer_running = False
-    current_time = last_set_time
-    socketio.emit("update_time", current_time)
-    socketio.emit("show_fullscreen_message", "")   # Vollbild-Nachricht leeren
-    socketio.emit("show_stop_message", "")          # Hinweistext leeren
-    socketio.emit("show_fullscreen_image", "")      # Bild ausblenden
+    if not timer_running:
+        current_time = last_set_time
+        socketio.emit("update_time", current_time)
+        socketio.emit("show_fullscreen_message", "")
+        socketio.emit("show_stop_message", "")
+        socketio.emit("show_fullscreen_image", "")
 
 
 @socketio.on("set_time")
 def set_time(minutes):
-    global current_time, last_set_time, timer_running
-    timer_running = False
-    time.sleep(0.05)  # kurz warten zum Stoppen des Threads
-    current_time = int(round(minutes * 60))
-    last_set_time = current_time
-    socketio.emit("update_time", current_time)
+    global current_time, last_set_time
+    if not timer_running:
+        current_time = int(round(minutes * 60))
+        last_set_time = current_time
+        socketio.emit("update_time", current_time)
+
 
 @socketio.on("set_overtime")
 def set_overtime(allowed):
@@ -160,6 +182,12 @@ def handle_request_timer_status():
 def send_instance_name():
     emit("instance_name", APP_INSTANCE_NAME, room=request.sid)
 
+@socketio.on("get_default_time")
+def handle_get_default_time():
+    minutes = load_default_time()
+    emit("default_time", minutes, room=request.sid)
+
+
 @app.route("/replace-images", methods=["POST"])
 @auth.login_required
 def replace_images():
@@ -177,6 +205,11 @@ def replace_images():
             return jsonify({"status": "error", "message": "Nicht alle Bilder gefunden."}), 404
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+@socketio.on("set_default_time")
+def handle_set_default_time(minutes):
+    save_default_time(int(minutes))
+
 
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=55056)
