@@ -5,6 +5,8 @@ Admin and speechtimer run on any device that has a modern browser. (PC/Mac/Lnx/I
 I also have one ready to use Raspi4 image. It fits on a 16GB card) starts with LDXE Desktop, so network/wifi can also be easily set up using a monitor/mouse/keyboard.  
 This image starts in kiosk mode and also shows the first speechtimer.html output (55055) on the HDMI output of the Raspi.  
 
+On the server side, it also runs on a Mac, but a new empty Windows PC without Python can be set up in three minutes. Once Python is installed, one line is enough to install all the necessary extensions. Then copy the Speechtimer folder to C: and you can get started. On a Mac, unless it's from a developer, it takes quite a bit of extra effort. However, I managed to do it anyway, so it also runs on a Macbook. But since a Mac never displays a proper full screen in the browser without checking dozens of boxes, I wouldn't bother with it. You can get a Raspi for 50 euros, clone the image, plug it in, and start it up. Or you can get a small PC for 120 euros. Both are better options.
+
 ![Alt-Text](speechtimer1.JPG)
 
 **Introducing SpeechTimer **
