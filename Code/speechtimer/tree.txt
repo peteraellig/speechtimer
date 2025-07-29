@@ -1,0 +1,40 @@
+C:\speechtimer>
+│   app.py
+│   app10.py
+│   app2.py
+│   app3.py
+│   app4.py
+│   app5.py
+│   app6.py
+│   app7.py
+│   app8.py
+│   app9.py
+│   default_time_1.txt
+│   speechtimer.jpg
+│   roomname1.txt
+│   Manual_Speechtimer.pdf
+│   Manual_Rapberry pi.pdf
+│   tree.pdf
+│
+├───static
+│   │   socket.io.min.js
+│   │
+│   ├───audio
+│   │       audio1.mp3
+│   │       audio2.mp3
+│   │       audio3.mp3
+│   │       audio4.mp3
+│   │   
+│   ├───fonts
+│   │       Arial Monospaced MT.ttf
+│   │       Arial MT Medium.ttf
+│   │
+│   └───images
+│           image1.jpg
+│           image2.jpg
+│           image3.jpg
+│           image4.jpg
+│
+└───templates
+        admin.html
+        speechtimer.html
