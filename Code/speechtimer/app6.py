@@ -21,7 +21,7 @@ import logging
 # 1. Konfiguration & Hilfsfunktionen
 
 # ========================================
-INSTANCE_ID = 4  # <---- Nur diese Zeile muss in app2.py auf 2 gesetzt werden!
+INSTANCE_ID = 6  # <---- Nur diese Zeile muss in app2.py auf 2 gesetzt werden!
 # ========================================
 
 
