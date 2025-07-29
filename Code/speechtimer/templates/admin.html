@@ -156,6 +156,11 @@
                 input.value = defaultStopMessage;
             }
 
+            const roomnameField = document.getElementById("roomnameInput");
+            if (roomnameField && "{{ instance_name }}") {
+                roomnameField.value = "{{ instance_name }}";
+            }
+
             // Autostart: Timer reset azf default Minuten setzen
             setTime(defaultMinutes);
             highlightButton("time-" + defaultMinutes);
@@ -172,7 +177,7 @@
         <span id="timerStatus">  🔴 Timer offline</span>
       </div>
       <div style="display:flex; align-items:center; gap:1rem;">
-        <span style="font-size:14px; opacity:0.8;">SpeechTimer 1.1.4 · Peter Aellig</span>
+        <span style="font-size:14px; opacity:0.8;">SpeechTimer 1.1.5 · Peter Aellig</span>
         <div id="clock"></div>
       </div>
     </header>
@@ -213,12 +218,6 @@
             </div>
         </div>
     </div>
-    <!-- Default Wert für Timer Reset, kann zur Laufzeit geändert werden-->
-            <div>
-                <label for="defaultResetTime">Default Reset Time (min):</label>
-                <input type="number" id="defaultResetTime" min="1" step="1" style="width:100px;" />
-                <button onclick="saveDefaultResetTime()">💾 Save</button>
-            </div>
     
 
     <!-- Schnellauswahl für vordefinierte Zeiten -->
@@ -347,6 +346,8 @@
 
             // Default-Zeit vom Server holen
             socket.emit("get_default_time");
+
+            // socket.emit("request_instance_name");
         });
 
         // Reaktion auf default_time
@@ -560,6 +561,48 @@
      // Live-Uhr
         function updateClock() { const now=new Date(); document.getElementById('clock').textContent=`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`; }
         setInterval(updateClock,1000); updateClock();
-    </script>
+
+     // the room name is stored here
+
+     function saveSettings() {
+            const name = document.getElementById("roomnameInput").value.trim();
+            const minutes = parseInt(document.getElementById("defaultResetTime").value);
+
+            if (!name || isNaN(minutes) || minutes <= 0) {
+                alert("⚠️ Bitte gültigen Namen und Zeitwert angeben.");
+                return;
+            }
+
+            socket.emit("save_settings", {
+                roomname: name,
+                default_time: minutes
+            });
+        }
+
+        socket.on("settings_saved", data => {
+            alert("✅ Settings saved:\n\n🕒 " + data.default_time + " min\n🏷️ " + data.roomname + "\n\nPlease restart the device so that everything is applied.");
+        });
+
+        function rebootDevice() {
+            if (confirm("⚠️ Gerät wirklich neu starten?")) {
+                socket.emit("reboot");
+                alert("🔁 Reboot wird ausgeführt …");
+            }
+        }
+
+
+</script>
+        <!-- Default Wert für Timer Reset, kann zur Laufzeit geändert werden-->
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+            <label for="defaultResetTime">Default Reset Time (min):</label>
+            <input type="number" id="defaultResetTime" min="1" step="1" style="width:80px;" />
+
+            <label for="roomnameInput">Room Name:</label>
+            <input type="text" id="roomnameInput" placeholder="Enter new room name" style="width:150px;" />
+
+            <button onclick="saveSettings()">💾 Save Settings</button>
+            <button onclick="rebootDevice()">🔁 Reboot</button>
+        </div>
+</div>
 </body>
 </html>
