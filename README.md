@@ -5,7 +5,7 @@ The easiest was is to set it up on a normal Windows PC. Any Office PC/Laptop is 
 Install Python from their website, install a few addons, copy the speechtimer folder on c: and run it from there-
 This takes less than 5 minutes to install.
 
-I also have one ready to use Raspi4 image. It fits on a 16GB card. Burn it with BaleaEdger on a Micro SD Card. insert it in your Raspi and start, using it.
+I also have one ready to use Raspi4 image (desktop). It fits on a 16GB card Burn it with BaleaEdger on a Micro SD Card. insert it in your Raspi and start, using it.
 use any IP scanner to find your DHCP adress of your raspi. If you are using the Waveshare PoE HAT (Typ B) – SKU: 18014 for Raspi 4, it shows the DHCP IP on the little OLED display.
 
 On the server side, it also runs on a Mac, but a new empty Windows PC without Python can be set up in a few minutes. Once Python is installed, one line is enough to install all the necessary extensions. Then copy the Speechtimer folder to C: and you can get started. On a Mac, unless it's from a developer, it takes quite a bit of extra effort. However, I managed to do it anyway, so it also runs on a Macbook. But since a Mac never displays a proper full screen in the browser without checking dozens of boxes, I wouldn't bother with it. You can get a Raspi for 50 euros, clone the image, plug it in, and start it up. Or you can get a small PC for 120 euros. Both are better options.
@@ -19,7 +19,7 @@ All these modules must run in the same network. No internet is required.
 Admin and speechtimer run on any device that has a modern browser. (PC/Mac/Lnx/IOS/Android/Kindle etc.)  
 You can also start app.py several times by turning app.py into app.py2 and assigning a new instance number.  
 You can change the room name in the admin console (admin.html) this will then be displayed in the TAB tabs of the browser and in the Admin Console.  
-**Raspi4 Image** 10 instances are installed on the Raspi-Image and start automatically when booting.  
+**Raspi4 Image** 10 instances are installed on the Raspi-Image and start automatically when booting. Attach a monitor, keyboard an mouse to setup your network settings easy. 
 Each Insance has its own default time and Roomname, which can be changed in the admin screen. Changing the roomname requires to reboot the server (app.py)
 You can activate the admin or speech timer on any device at any time, without affecting any running timer.
 
