@@ -202,8 +202,6 @@ def api_control():
         return jsonify({"status": "error", "message": "Unbekannte Funktion."}), 400
 
 
-
-
 # 7. Socket.IO Events – Timersteuerung
 # ========================================
 
@@ -340,10 +338,23 @@ def handle_reboot():
         threading.Thread(target=lambda: os.system("sudo /sbin/reboot")).start()
     except Exception as e:
         print(f"Reboot error: {e}")
-  
 
 
-# 10. Startpunkt:
+# 10. damit lässt sich per webrequest im browser ein plain text der aktuellen zeit aufrufen, ausserhalb von auth:
+ # ======================================== 
+@app.route("/current-time", methods=["GET"])
+def current_time_string():
+    sign = "–" if current_time < 0 else ""
+    abs_time = abs(current_time)
+    minutes = abs_time // 60
+    seconds = abs_time % 60
+    return f"{sign}{minutes:02}:{seconds:02}", 200, {'Content-Type': 'text/plain'}
+# http://localhost:55055/current-time
+# ========================================
+
+
+
+# 11. Startpunkt:
 # ========================================
 
 if __name__ == "__main__":
