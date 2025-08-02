@@ -1,4 +1,4 @@
-# Speechtimer 1.1.5 · Peter Aellig
+# Speechtimer 1.1.6 · Peter Aellig
 # app.py
 
 # wenn für eine weitere Instanz eine APP Kopie erstellt wird,
@@ -24,6 +24,9 @@ import logging
 INSTANCE_ID = 10  # <---- Nur diese Zeile muss in app2.py auf 2 gesetzt werden!
 # ========================================
 
+
+password_protection = True  # Auf False setzen, wenn keine Authentifizierung nötig oder gewünscht ist
+api_enabled = True  # Auf False setzen, um API-Aufrufe zu deaktivieren
 
 # Portnummern werden automatisch angepasst aufgrund der INSTANCE_ID
 # hier wird die erste Portnummer 55055 sein (55054 plus 1)
@@ -74,6 +77,12 @@ app.debug = True
 APP_INSTANCE_NAME = load_room_name()
 socketio = SocketIO(app)
 auth = HTTPBasicAuth()
+
+if not password_protection:
+    def no_auth_decorator(f):
+        return f
+    auth.login_required = no_auth_decorator
+
 
 # 3. Authentifizierung
 # ========================================
@@ -151,6 +160,47 @@ def reboot_device():
         return jsonify({"status": "success", "message": "Rebooting..."}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route("/api", methods=["GET"])
+def api_control():
+    if not api_enabled:
+        return jsonify({"status": "error", "message": "API-Zugriff ist deaktiviert."}), 403
+
+    function = request.args.get("Function", "").lower()
+    value = request.args.get("Value")
+
+    if function == "settime":
+        try:
+            minutes = float(value)
+            set_time(minutes)
+            return jsonify({"status": "ok", "message": f"Time set to {minutes} min."})
+        except:
+            return jsonify({"status": "error", "message": "Ungültiger Zeitwert."}), 400
+
+    elif function == "start":
+        start_timer()
+        return jsonify({"status": "ok", "message": "Timer gestartet."})
+
+    elif function == "stop":
+        stop_timer()
+        return jsonify({"status": "ok", "message": "Timer gestoppt."})
+
+    elif function == "reset":
+        reset_timer()
+        return jsonify({"status": "ok", "message": "Timer zurückgesetzt."})
+
+    elif function == "adjust":
+        try:
+            seconds = int(value)
+            handle_adjust_time(seconds)
+            return jsonify({"status": "ok", "message": f"{seconds} Sekunden hinzugefügt."})
+        except:
+            return jsonify({"status": "error", "message": "Ungültiger Wert für Adjust."}), 400
+
+    else:
+        return jsonify({"status": "error", "message": "Unbekannte Funktion."}), 400
+
 
 
 
