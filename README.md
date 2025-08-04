@@ -1,4 +1,4 @@
-# speechtimer  1.1.6
+# speechtimer  1.1.6.1
 I would like to share my latest project: a web based speech timer that makes managing talks a breeze.  
 Admin and Speechtimer run on any device that has a modern browser. (PC/Mac/Lnx/IOS/Android/Kindle etc.)  
 The easiest was is to set it up on a normal Windows PC. Any Office PC/Laptop is good enough.  
