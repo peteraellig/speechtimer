@@ -34,6 +34,10 @@ The Raspi Images will autostart 10 Instances of the Timer (port55055 -55064)
 **For the Raspi4 you can download a larger (fits on a 16GB card) ready to use image:**  
 *[Raspi4 Image links](https://drive.google.com/drive/folders/1aS9zuvYhaSjZAqpjX2A-KHDxk3yzTw-w?usp=sharing)  
 
+**Streamdeck**  
+easy to control with the standard streamdack app, via API, Multicommand.
+![Alt-Text](streamdeck.png)
+
 **Tech Stack**  
 Flask + Flask SocketIO backend in Python  
 – Serves both the public timer page and the secured admin panel  
