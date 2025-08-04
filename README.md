@@ -35,7 +35,7 @@ The Raspi Images will autostart 10 Instances of the Timer (port55055 -55064)
 *[Raspi4 Image links](https://drive.google.com/drive/folders/1aS9zuvYhaSjZAqpjX2A-KHDxk3yzTw-w?usp=sharing)  
 
 **Streamdeck**  
-In addition to being easy to operate with any type of device that has a modern browser and is logged into the same network, each timer can also be operated very easily with a Streamdeck, with the standard streamdack app, via API, Multicommand.  
+In addition to being easy to operate with any type of device that has a modern browser and is logged into the same network, each timer can also be operated very easily with a Streamdeck, with the standard streamdack app, via Multicommand, using the speechtimer API.
 ![Alt-Text](streamdeck.png)
 
 **Tech Stack**  
