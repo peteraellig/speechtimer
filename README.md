@@ -13,7 +13,7 @@ Use any IP scanner to find your DHCP adress of your raspi. If you are using the 
 
 On the server side, it also runs on a Mac, but a new empty Windows PC without Python can be set up in a few minutes. Once Python is installed, one line is enough to install all the necessary extensions. Then copy the Speechtimer folder to C: and you can get started. On a Mac, unless it's from a developer, it takes quite a bit of extra effort. However, I managed to do it anyway, so it also runs on a Macbook. But since a Mac never displays a proper full screen in the browser without checking dozens of boxes, I wouldn't bother with it. You can get a Raspi for 50 euros, clone the image, plug it in, and start it up. Or you can get a small PC for 120 euros. Both are better options.
 
-![Alt-Text](speechtimer1.JPG)
+![Alt-Text](speechtimer 1.1.6.JPG)
 
 **Introducing SpeechTimer **
 Speechtimer is a simple and easy-to-use programme for controlling a presenter's speaking time.  
