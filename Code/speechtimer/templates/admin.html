@@ -166,6 +166,8 @@
             highlightButton("time-" + defaultMinutes);
             // Kein automatischer Reset mehr!
         });
+
+
     </script>
 </head>
 
@@ -177,7 +179,7 @@
         <span id="timerStatus">  🔴 Timer offline</span>
       </div>
       <div style="display:flex; align-items:center; gap:1rem;">
-        <span style="font-size:14px; opacity:0.8;">SpeechTimer 1.1.6 · Peter Aellig</span>
+        <span style="font-size:14px; opacity:0.8;">SpeechTimer 1.1.6.1 · Peter Aellig</span>
         <div id="clock"></div>
       </div>
     </header>
@@ -589,6 +591,26 @@
                 alert("🔁 Reboot wird ausgeführt …");
             }
         }
+
+        // api listener
+        socket.on("external_time_set", data => {
+            const min = Math.round(data.minutes);
+            highlightButton(null);  // Hebt alle Hervorhebungen auf
+            const btn = document.getElementById("time-" + min);
+            if (btn) highlightButton("time-" + min);
+        });
+
+        socket.on("blank_screen_status", isActive => {
+            const btn = document.getElementById("waitBtn");
+            waitActive = isActive;
+            if (isActive) {
+                btn.classList.add("waiting");
+            } else {
+                btn.classList.remove("waiting");
+            }
+        });
+
+
 
 
 </script>
