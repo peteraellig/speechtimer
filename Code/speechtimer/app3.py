@@ -1,4 +1,4 @@
-# Speechtimer 1.1.5 · Peter Aellig
+# Speechtimer 1.1.6.1 · Peter Aellig
 # app.py
 
 # wenn für eine weitere Instanz eine APP Kopie erstellt wird,
@@ -150,7 +150,7 @@ def replace_images():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-
+    # reboot functions
 @app.route("/reboot", methods=["POST"])
 @auth.login_required
 def reboot_device():
@@ -161,11 +161,11 @@ def reboot_device():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-
+    # API functions
 @app.route("/api", methods=["GET"])
 def api_control():
     if not api_enabled:
-        return jsonify({"status": "error", "message": "API-Zugriff ist deaktiviert."}), 403
+        return jsonify({"status": "error", "message": "API access is disabled."}), 403
 
     function = request.args.get("Function", "").lower()
     value = request.args.get("Value")
@@ -174,29 +174,40 @@ def api_control():
         try:
             minutes = float(value)
             set_time(minutes)
+            socketio.emit("external_time_set", {"minutes": minutes})  # <-- NEU
             return jsonify({"status": "ok", "message": f"Time set to {minutes} min."})
         except:
-            return jsonify({"status": "error", "message": "Ungültiger Zeitwert."}), 400
+            return jsonify({"status": "error", "message": "Invalid time value."}), 400
 
     elif function == "start":
         start_timer()
-        return jsonify({"status": "ok", "message": "Timer gestartet."})
+        return jsonify({"status": "ok", "message": "Timer started."})
 
     elif function == "stop":
         stop_timer()
-        return jsonify({"status": "ok", "message": "Timer gestoppt."})
+        return jsonify({"status": "ok", "message": "Timer stopped."})
 
     elif function == "reset":
         reset_timer()
-        return jsonify({"status": "ok", "message": "Timer zurückgesetzt."})
+        return jsonify({"status": "ok", "message": "Timer reset."})
 
     elif function == "adjust":
         try:
             seconds = int(value)
             handle_adjust_time(seconds)
-            return jsonify({"status": "ok", "message": f"{seconds} Sekunden hinzugefügt."})
+            return jsonify({"status": "ok", "message": f"{seconds} Seconds added."})
         except:
-            return jsonify({"status": "error", "message": "Ungültiger Wert für Adjust."}), 400
+            return jsonify({"status": "error", "message": "Invalid value for Adjust."}), 400
+
+    elif function == "blankscreen":
+        if value and value.lower() == "on":
+            socketio.emit("show_fullscreen_message", "☼")
+            socketio.emit("blank_screen_status", True)   # <--- Neu
+            return jsonify({"status": "ok", "message": "Blank screen ON."})
+        elif value and value.lower() == "off":
+            socketio.emit("show_fullscreen_message", "")
+            socketio.emit("blank_screen_status", False)  # <--- Neu
+            return jsonify({"status": "ok", "message": "Blank screen OFF."})
 
     else:
         return jsonify({"status": "error", "message": "Unbekannte Funktion."}), 400
