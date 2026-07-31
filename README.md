@@ -64,3 +64,8 @@ Start your SECOND output and controls with 192.168.1.210:55056 this shows the sp
 
 Whether you’re running it on a Raspberry Pi or a PC, the browser features work identically.
 
+## License
+
+This project is released under the [BSD Zero Clause License (0BSD)](LICENSE).
+You may use, copy, modify, and distribute it for any purpose, with or without
+fee, and without attribution.
